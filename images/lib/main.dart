@@ -19,8 +19,8 @@ class _MyAppState extends State<MyApp> {
         appBar: AppBar(
           title: const Text('Images'),
         ),
-        body: Image.asset(
-          'assets/images/cat.png',
+        body: Image.network(
+          "https://veja.abril.com.br/wp-content/uploads/2017/01/cao-labrador-3-copy.jpg?quality=90&strip=info&w=1280&h=720&crop=1",
           fit: BoxFit.cover,
           width: double.infinity,
           height: double.infinity,
