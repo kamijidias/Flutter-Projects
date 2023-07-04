@@ -1,31 +1,46 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  int value = 10;
-
-  runApp(MyApp(title: 'My first app title', value: value,));
-  value++; // Não consiguimos mudar pois estamos utilizando o StatelessWidget
-
+  runApp(const MyApp(name: 'Andrew'));
 }
 
-class MyApp extends StatelessWidget {
-  final String title;
-  final int value;
+class MyApp extends StatefulWidget {
+  final String name;
 
-  const MyApp({Key? key, this.title = '', this.value = 0}) : super(key: key);
+  const MyApp({ Key? key, this.name = ''}) : super(key:key);
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+
+  int salary = 7000;
+
+  void increaseSalary(int value) {
+    setState(() {
+      salary = salary + value;
+    });
+  }
+
+  void decreaseSalary(int value) {
+    setState(() {
+      salary = salary - value;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return  MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text(this.title),
-        ),
-        body:  Center(
-          child: Text(
-            'First APP, value is $value',
-            style: const TextStyle(fontSize: 30, color: Colors.black),
-          ),
+    return Center(
+      child: GestureDetector(
+        onTap: () {
+          print('clicked');
+
+          increaseSalary(500);
+
+        },
+        child: Text('The salary of ${widget.name} is $salary',
+        textDirection: TextDirection.ltr,
         ),
       ),
     );
