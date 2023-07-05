@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
           color: Colors.black,
           backgroundColor: Colors.yellow,
           decoration: TextDecoration.overline,
+          fontFamily: 'Chopin',
         ),
       ),
     );
