@@ -27,8 +27,20 @@ class _MyAppState extends State<MyApp> {
       case '7':
       case '8':
       case '9':
+      case ',':
         setState(() {
           number += keyboard;
+
+          number = number.replaceAll(',', '.');
+
+          if (number.contains('.')) {
+            // double? numberDouble = double.parse(number);
+            // number = numberDouble.toString();
+          } else {
+            int? numberInt = int.parse(number);
+            number = numberInt.toString();
+          }
+          number = number.replaceAll('.', ',');
         });
         break;
       case 'AC':
