@@ -12,127 +12,115 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  String calculator = 'Calculator';
+  String number = 'Number';
+
+  void calculate(String keyboard) {
+    switch (keyboard) {
+      case '0':
+      case '1':
+      case '2':
+      case '3':
+      case '4':
+      case '5':
+      case '6':
+      case '7':
+      case '8':
+      case '9':
+        setState(() {
+          number += keyboard;
+        });
+        break;
+      case 'AC':
+        setState(() {
+          number = '0';
+        });
+        break;
+      default:
+        break;
+    }
+  }
+
+  GestureDetector buildGestureDetector(
+      String text, Function(String) calculate) {
+    return GestureDetector(
+      onTap: () {
+        calculate(text);
+      },
+      child: Text(
+        text,
+        style: const TextStyle(fontSize: 48),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Center(
-            child: Text('Calculator'),
+          title: Center(
+            child: Text(calculator),
           ),
         ),
-        body: const Column(
+        body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Text(
-                  'Number',
-                  style: TextStyle(fontSize: 72),
+                  number,
+                  style: const TextStyle(fontSize: 72),
                 )
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  'AC',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(''),
-                Text(''),
-                Text(
-                  '<X',
-                  style: TextStyle(fontSize: 48),
-                ),
+                buildGestureDetector('AC', calculate),
+                const Text(''),
+                const Text(''),
+                buildGestureDetector('<', calculate),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  '7',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '8',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '9',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '/',
-                  style: TextStyle(fontSize: 48),
-                ),
+                buildGestureDetector('7', calculate),
+                buildGestureDetector('8', calculate),
+                buildGestureDetector('9', calculate),
+                buildGestureDetector('/', calculate),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  '4',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '5',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '6',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  'X',
-                  style: TextStyle(fontSize: 48),
-                ),
+                buildGestureDetector('4', calculate),
+                buildGestureDetector('5', calculate),
+                buildGestureDetector('6', calculate),
+                buildGestureDetector('X', calculate),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  '1',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '2',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '3',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '-',
-                  style: TextStyle(fontSize: 48),
-                ),
+                buildGestureDetector('1', calculate),
+                buildGestureDetector('2', calculate),
+                buildGestureDetector('3', calculate),
+                buildGestureDetector('-', calculate),
               ],
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
-                  '0',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  ',',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '=',
-                  style: TextStyle(fontSize: 48),
-                ),
-                Text(
-                  '+',
-                  style: TextStyle(fontSize: 48),
-                ),
+                buildGestureDetector('0', calculate),
+                buildGestureDetector(',', calculate),
+                buildGestureDetector('=', calculate),
+                buildGestureDetector('+', calculate),
               ],
             ),
-            Text('Column 6'),
+            const Text('created by Andrew Kamiji'),
           ],
         ),
       ),
