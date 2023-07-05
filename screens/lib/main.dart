@@ -1,7 +1,14 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
+}
+
+class Arguments {
+  final int id;
+  final String name;
+
+  Arguments(this.id, this.name);
 }
 
 class MyApp extends StatelessWidget {
@@ -13,7 +20,7 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const FirstScreen(),
-        '/secondScreen': (context) => const SecondScreen(),
+        SecondScreen.routeName: (context) => const SecondScreen(),
         '/thirdScreen': (context) => const ThirdScreen(),
       },
     );
@@ -25,6 +32,7 @@ class FirstScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    int value = 1;
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -33,8 +41,12 @@ class FirstScreen extends StatelessWidget {
         body: Center(
           child: ElevatedButton(
             onPressed: () {
-              Navigator.pushNamed(context, '/secondScreen');
-
+              Navigator.pushNamed(
+                context,
+                '/secondScreen',
+                arguments: Arguments(value, 'Kamiji $value'),
+              );
+              value++;
               // Navigator.push(
               //   context,
               //   MaterialPageRoute(
@@ -53,14 +65,18 @@ class FirstScreen extends StatelessWidget {
 }
 
 class SecondScreen extends StatelessWidget {
-  const SecondScreen({super.key});
+  const SecondScreen({Key? key}) : super(key: key);
+
+  static const routeName = '/secondScreen';
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments as Arguments;
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          title: const Text('Second screen'),
+          title: Text('Second Screen ${arguments.name}'),
           backgroundColor: Colors.red,
         ),
         body: Center(
@@ -69,7 +85,10 @@ class SecondScreen extends StatelessWidget {
             children: [
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/thirdScreen');
+                  Navigator.pushNamed(
+                    context,
+                    '/thirdScreen',
+                  );
                 },
                 style: ButtonStyle(
                   backgroundColor: MaterialStateProperty.all<Color>(Colors.red),
