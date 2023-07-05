@@ -47,7 +47,10 @@ class _MyAppState extends State<MyApp> {
         break;
 
       case '+':
-        operation = '+';
+      case '-':
+      case 'X':
+      case '/':
+        operation = keyboard;
         number = number.replaceAll(',', '.');
         firstNumber = double.parse(number);
         number = '0';
@@ -55,8 +58,27 @@ class _MyAppState extends State<MyApp> {
 
       case '=':
         double result = 0.0;
+
+        if (operation == '/') {
+          if (double.parse(number) * 1 == 0) {
+            return;
+          }
+        }
+
         if (operation == '+') {
           result = firstNumber + double.parse(number.replaceAll(',', '.'));
+        }
+
+        if (operation == '-') {
+          result = firstNumber - double.parse(number.replaceAll(',', '.'));
+        }
+
+        if (operation == 'X') {
+          result = firstNumber * double.parse(number.replaceAll(',', '.'));
+        }
+
+        if (operation == '/') {
+          result = firstNumber / double.parse(number.replaceAll(',', '.'));
         }
 
         String resultString = result.toString();
@@ -80,21 +102,40 @@ class _MyAppState extends State<MyApp> {
           number = '0';
         });
         break;
+
+      case '<':
+        setState(() {
+          if (number.isNotEmpty) {
+            number = number.substring(0, number.length - 1);
+          }
+        });
+        break;
+
       default:
         break;
     }
   }
 
   GestureDetector buildGestureDetector(
-      String text, Function(String) calculate) {
+      String text, Function(String) calculate, [String? imagePath]) {
+    Widget childWidget;
+    if (imagePath != null) {
+      childWidget = Image.asset(
+        imagePath,
+        width: 60,
+      );
+    } else {
+      childWidget = Text(
+        text,
+        style: const TextStyle(fontSize: 48),
+      );
+    }
+
     return GestureDetector(
       onTap: () {
         calculate(text);
       },
-      child: Text(
-        text,
-        style: const TextStyle(fontSize: 48),
-      ),
+      child: childWidget,
     );
   }
 
@@ -125,7 +166,7 @@ class _MyAppState extends State<MyApp> {
                 buildGestureDetector('AC', calculate),
                 const Text(''),
                 const Text(''),
-                buildGestureDetector('<', calculate),
+                buildGestureDetector('<', calculate, 'assets/images/arrow_back.png'),
               ],
             ),
             Row(
