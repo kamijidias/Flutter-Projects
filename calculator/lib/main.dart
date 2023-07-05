@@ -13,7 +13,9 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   String calculator = 'Calculator';
-  String number = 'Number';
+  String number = '0';
+  double firstNumber = 0.0;
+  String operation = '';
 
   void calculate(String keyboard) {
     switch (keyboard) {
@@ -43,6 +45,36 @@ class _MyAppState extends State<MyApp> {
           number = number.replaceAll('.', ',');
         });
         break;
+
+      case '+':
+        operation = '+';
+        number = number.replaceAll(',', '.');
+        firstNumber = double.parse(number);
+        number = '0';
+        break;
+
+      case '=':
+        double result = 0.0;
+        if (operation == '+') {
+          result = firstNumber + double.parse(number.replaceAll(',', '.'));
+        }
+
+        String resultString = result.toString();
+
+        List<String> resultParts = resultString.split('.');
+
+        if (int.parse(resultParts[1]) * 1 == 0) {
+          setState(() {
+            number = int.parse(resultParts[0]).toString();
+          });
+        } else {
+          setState(() {
+            number = result.toString();
+          });
+        }
+
+        break;
+
       case 'AC':
         setState(() {
           number = '0';
