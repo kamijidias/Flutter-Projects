@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'homepage.dart';
+import 'quizpage.dart';
 
 void main() {
-  runApp( const HomePage());
+  runApp(const QuizPage());
 }
 
 
