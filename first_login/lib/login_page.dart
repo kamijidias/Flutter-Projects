@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -52,7 +53,9 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 ElevatedButton(
                   onPressed: () {
-                    if (_formKey.currentState!.validate()) {}
+                    if (_formKey.currentState!.validate()) {
+                      login();
+                    }
                   },
                   child: const Text('Login'),
                 )
@@ -62,5 +65,18 @@ class _LoginPageState extends State<LoginPage> {
         ),
       ),
     );
+  }
+
+  login() async {
+    var url = Uri.parse('');
+    var response = await http.post(
+      url,
+      body: {
+        'username': _emailController.text,
+        'password': _passwordController.text,
+      },
+    );
+    print(response.statusCode);
+    print(response.body);
   }
 }
