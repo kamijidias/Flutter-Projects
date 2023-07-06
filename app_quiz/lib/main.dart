@@ -1,19 +1,41 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp( const HomePage());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
-
-class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
-    return Container();
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Center(child: Text('Quiz')),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              const FlutterLogo(
+                size: 300,
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  print('clicked');
+                },
+                style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),
+                child: const Text(
+                  'Play',
+                  style: TextStyle(fontSize: 50),
+                ),
+              )
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
