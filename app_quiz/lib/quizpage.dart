@@ -1,3 +1,4 @@
+import 'package:app_quiz/resultpage.dart';
 import 'package:flutter/material.dart';
 
 class QuizPage extends StatefulWidget {
@@ -94,7 +95,36 @@ class _QuizPageState extends State<QuizPage> {
       "correct_answer": 0
     });
 
-    int questionNumber = 2;
+    int questionNumber = 1;
+    int correctCount = 1;
+    int wrongCount = 0;
+    int totalQuestions = 10;
+
+    void answered(int answerNumber) {
+      setState(() {
+        if (quiz[questionNumber - 1]["correct_answer"] == answerNumber) {
+          print("success");
+          correctCount++;
+        } else {
+          print("wrong choice");
+          wrongCount++;
+        }
+
+        print(
+            'Total correct answers: $correctCount, Total wrong answer: $wrongCount');
+
+        if (questionNumber == totalQuestions) {
+          Navigator.pushNamed(
+            context,
+            'ResultPage',
+            arguments: Arguments(correctCount),
+          );
+          print('Quiz ended');
+        } else {
+          questionNumber++;
+        }
+      });
+    }
 
     return MaterialApp(
       home: Scaffold(
@@ -122,6 +152,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     print('clicked');
+                    answered(0);
                   },
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),
@@ -136,6 +167,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     print('clicked');
+                    answered(1);
                   },
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),
@@ -150,6 +182,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     print('clicked');
+                    answered(2);
                   },
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),
@@ -164,6 +197,7 @@ class _QuizPageState extends State<QuizPage> {
                 child: ElevatedButton(
                   onPressed: () {
                     print('clicked');
+                    answered(3);
                   },
                   style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),

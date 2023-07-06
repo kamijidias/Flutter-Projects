@@ -1,12 +1,20 @@
 import 'package:flutter/material.dart';
 
-class ResultPage extends StatelessWidget {
-  const ResultPage({Key? key, this.successes}) : super(key: key);
+class Arguments {
+  final int successes;
 
-  final int? successes;
+  Arguments(this.successes);
+}
+
+class ResultPage extends StatelessWidget {
+  static const route = 'ResultPage';
+
+  const ResultPage({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    final arguments = ModalRoute.of(context)?.settings.arguments as Arguments;
+
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
@@ -18,13 +26,13 @@ class ResultPage extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Text(
+                const Text(
                   'Result:',
-                  style: const TextStyle(fontSize: 30),
+                  style: TextStyle(fontSize: 30),
                   textAlign: TextAlign.center,
                 ),
                 Text(
-                  'You got\n $successes out of 10\n question correct.',
+                  'You got\n ${arguments.successes} out of 10\n question correct.',
                   style: const TextStyle(fontSize: 30),
                   textAlign: TextAlign.center,
                 ),
@@ -33,6 +41,7 @@ class ResultPage extends StatelessWidget {
                   child: ElevatedButton(
                     onPressed: () {
                       print('clicked');
+                      Navigator.pushNamed(context, 'QuizPage');
                     },
                     style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.fromLTRB(20, 20, 20, 20)),

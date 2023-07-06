@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () {
-                  print('clicked');
+                  Navigator.pushNamed(context, 'QuizPage');
                 },
                 style: ElevatedButton.styleFrom(
                     padding: const EdgeInsets.fromLTRB(100, 20, 100, 20)),
