@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:login_fire_base/home_page.dart';
@@ -11,10 +13,13 @@ class AuthPage extends StatefulWidget {
 }
 
 class _AuthPageState extends State<AuthPage> {
+
+  StreamSubscription? streamSubscription;
+
   @override
   void initState() {
     super.initState();
-    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+    streamSubscription = FirebaseAuth.instance.authStateChanges().listen((User? user) {
       if (user == null) {
         Navigator.pushReplacement(
           context,
@@ -27,6 +32,12 @@ class _AuthPageState extends State<AuthPage> {
         );
       }
     });
+  }
+
+  @override
+  void dispose() {
+    streamSubscription!.cancel();
+    super.dispose();
   }
 
   @override
