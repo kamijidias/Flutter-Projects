@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:first_login/welcome_page.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +16,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
+  bool _seePassword = false;
 
   @override
   Widget build(BuildContext context) {
@@ -26,25 +31,39 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 TextFormField(
                   controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
                       label: Text('email'), hintText: 'name@mail.com'),
                   validator: (email) {
                     if (email == null || email.isEmpty) {
-                      return 'Digite seu e-mail';
+                      return 'Enter your email';
                     }
                     return null;
                   },
                 ),
                 TextFormField(
                     controller: _passwordController,
-                    decoration: const InputDecoration(
-                        label: Text('password'),
-                        hintText: 'Enter your password'),
+                    keyboardType: TextInputType.visiblePassword,
+                    obscureText: !_seePassword,
+                    decoration: InputDecoration(
+                      label: const Text('password'),
+                      hintText: 'Enter your password',
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          setState(() {
+                            _seePassword = !_seePassword;
+                          });
+                        },
+                        icon: Icon(_seePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined),
+                      ),
+                    ),
                     validator: (password) {
                       if (password == null || password.isEmpty) {
-                        return 'Digite sua senha';
+                        return 'Enter your password';
                       } else if (password.length <= 8) {
-                        return 'Digite uma senha mais forte';
+                        return 'Enter a stronger password';
                       }
                       return null;
                     }),
@@ -68,6 +87,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   login() async {
+    SharedPreferences _sharedPreferences = await SharedPreferences.getInstance();
     var url = Uri.parse('');
     var response = await http.post(
       url,
@@ -76,7 +96,21 @@ class _LoginPageState extends State<LoginPage> {
         'password': _passwordController.text,
       },
     );
-    print(response.statusCode);
-    print(response.body);
+    if (response.statusCode == 200) {
+      String token = jsonDecode(response.body)['token'];
+      await _sharedPreferences.setString('token', 'Token $token');
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const WelcomePage(),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
+        backgroundColor: Colors.redAccent,
+        content: Text('Email our password incorrect'),
+        behavior: SnackBarBehavior.floating,
+      ));
+    }
   }
 }
