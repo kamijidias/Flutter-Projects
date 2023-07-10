@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:login_fire_base/createaccount_page.dart';
 import 'package:login_fire_base/home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -41,6 +42,17 @@ class _LoginPageState extends State<LoginPage> {
             },
             child: Text('Login'),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CreateAccountPage(),
+                ),
+              );
+            },
+            child: Text("Create Account"),
+          ),
         ],
       ),
     );
@@ -53,14 +65,12 @@ class _LoginPageState extends State<LoginPage> {
         email: _emailController.text,
         password: _passwordController.text,
       );
-      if (userCredential != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomePage(),
-          ),
-        );
-      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+      );
     } on FirebaseAuthException catch (error) {
       if (error.code == 'user-not-found') {
         ScaffoldMessenger.of(context).showSnackBar(
