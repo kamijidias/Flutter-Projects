@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:login_fire_base/createaccount_page.dart';
-import 'package:login_fire_base/home_page.dart';
+import 'package:login_fire_base/pages/createaccount_page.dart';
+import 'package:login_fire_base/pages/home_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -14,44 +14,61 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _firebaseAuth = FirebaseAuth.instance;
+  bool _seePassword = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Login page"),
+        centerTitle: true,
+        title: const Text("Login"),
       ),
       body: ListView(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         children: [
           TextFormField(
             controller: _emailController,
-            decoration: InputDecoration(
+            keyboardType: TextInputType.emailAddress,
+            decoration: const InputDecoration(
               label: Text('E-mail'),
+              hintText: 'Enter your email',
             ),
           ),
           TextFormField(
             controller: _passwordController,
+            obscureText: !_seePassword,
+            keyboardType: TextInputType.visiblePassword,
             decoration: InputDecoration(
-              label: Text('Password'),
-            ),
+                label: const Text('Password'),
+                hintText: 'Enter your password',
+                suffixIcon: IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _seePassword = !_seePassword;
+                    });
+                  },
+                  icon: Icon(_seePassword
+                      ? Icons.visibility_off_outlined
+                      : Icons.visibility_outlined),
+                )),
           ),
+          const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () {
               login();
             },
-            child: Text('Login'),
+            child: const Text('Login'),
           ),
           TextButton(
             onPressed: () {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CreateAccountPage(),
+                  builder: (context) => const CreateAccountPage(),
                 ),
               );
             },
-            child: Text("Create Account"),
+            child: const Text("Create Account"),
           ),
         ],
       ),
@@ -60,15 +77,17 @@ class _LoginPageState extends State<LoginPage> {
 
   login() async {
     try {
+      // ignore: unused_local_variable
       UserCredential userCredential =
           await _firebaseAuth.signInWithEmailAndPassword(
         email: _emailController.text,
         password: _passwordController.text,
       );
+      // ignore: use_build_context_synchronously
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => HomePage(),
+          builder: (context) => const HomePage(),
         ),
       );
     } on FirebaseAuthException catch (error) {
