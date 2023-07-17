@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "195901942831",
+    "project_id": "full-login-akd",
+    "storage_bucket": "full-login-akd.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:195901942831:android:7a386dedc3b7d4b5936ada",
+        "android_client_info": {
+          "package_name": "com.example.full_login"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "195901942831-ss84fskoahn5uopolpq63u8p42abc3oh.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCXRpkP8j3y3GtLnCNH1gVsH8h8B_KoxX8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "195901942831-ss84fskoahn5uopolpq63u8p42abc3oh.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
