@@ -161,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(10)),
                       child: Center(
                         child: Text(
-                          'Sign in',
+                          'Sign In',
                           style: TextStyle(
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
