@@ -2,6 +2,7 @@
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:full_login/pages/forgot_password.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,6 +14,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  
   // text controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -85,6 +87,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+
                 SizedBox(
                   height: 12,
                 ),
@@ -112,7 +115,38 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 SizedBox(
-                  height: 20,
+                  height: 15,
+                ),
+
+                //Forgot password?
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ForgotPasswordPage();
+                              },
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'Forgot password?',
+                          style: TextStyle(
+                              color: Colors.blue, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                SizedBox(
+                  height: 15,
                 ),
 
                 //Sign in button
@@ -138,11 +172,12 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
+
                 SizedBox(
                   height: 30,
                 ),
 
-                //not a member? register now
+                //Not a member? register now
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
