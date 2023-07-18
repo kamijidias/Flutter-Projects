@@ -3,10 +3,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
-class GetUserName extends StatelessWidget {
+class GetUserData extends StatelessWidget {
   final String documentId;
 
-  GetUserName({required this.documentId});
+  const GetUserData({super.key, required this.documentId});
 
   @override
   Widget build(BuildContext context) {
