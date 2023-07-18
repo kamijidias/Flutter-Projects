@@ -103,7 +103,7 @@ class _HomePageState extends State<HomePage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => EditUser(userId: docIDs[2]),
+                                      builder: (context) => EditUser(userId: docIDs[index]),
                                     ),
                                   );
                                 },
