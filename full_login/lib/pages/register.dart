@@ -73,16 +73,50 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  Future addUserDetails(
+  Future<void> addUserDetails(
       String firstName, String lastName, String email, int age) async {
-    await FirebaseFirestore.instance.collection('users').add(
-      {
-        'first name': firstName,
-        'last name': lastName,
-        'age': age,
-        'email': email,
-      },
-    );
+    CollectionReference users = FirebaseFirestore.instance.collection('users');
+
+    try {
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        String userId = currentUser.uid;
+
+        DocumentReference newUser = users.doc(userId);
+
+        await newUser.set({
+          'userId': userId,
+          'first name': firstName,
+          'last name': lastName,
+          'email': email,
+          'age': age,
+        });
+
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color.fromARGB(255, 32, 155, 95),
+              content: Text('User details added successfully'),
+              duration: Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      } else {
+        print("User is not logged in");
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Failed to add user details'),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   bool passwordConfirmed() {

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 class GetUserData extends StatelessWidget {
   final String documentId;
 
-  const GetUserData({super.key, required this.documentId});
+  const GetUserData({Key? key, required this.documentId}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -17,10 +17,15 @@ class GetUserData extends StatelessWidget {
       future: users.doc(documentId).get(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
-          Map<String, dynamic> data =
-              snapshot.data!.data() as Map<String, dynamic>;
-          return Text('${data['first name']}'
-              ' ${data['last name']}');
+          if (snapshot.hasData && snapshot.data!.exists) {
+            Map<String, dynamic>? data =
+                snapshot.data!.data() as Map<String, dynamic>?;
+
+            if (data != null) {
+              return Text('${data['first name']} ${data['last name']}');
+            }
+          }
+          return Text('User not found');
         }
         return Text('loading..');
       },
