@@ -34,26 +34,29 @@ class _EditUserState extends State<EditUser> {
         .then(
       (documentSnapshot) {
         if (documentSnapshot.exists) {
-          _firstNameController.text = documentSnapshot.get('first name');
-          _lastNameController.text = documentSnapshot.get('last name');
-          int age = documentSnapshot.get('age');
+          _firstNameController.text = documentSnapshot.get('first name') ?? '';
+          _lastNameController.text = documentSnapshot.get('last name') ?? '';
+          int age = documentSnapshot.get('age') ?? 0;
           _ageController.text = age.toString();
-          _phoneController.text = documentSnapshot.get('phone');
-          _zipCodeController.text = documentSnapshot.get('zipCode');
+          _phoneController.text = documentSnapshot.get('phone') ?? '';
+          _zipCodeController.text = documentSnapshot.get('zipCode') ?? '';
         }
       },
     );
   }
 
-  Future<void> updateUser(
-      String userId, String firstName, String lastName, int age, String phone, String zipCode) async {
+  Future<void> updateUser(String userId, String firstName, String lastName,
+      int age, String? phone, String? zipCode) async {
     try {
+      final phoneValue = phone ?? '';
+      final zipCodeValue = zipCode ?? '';
+
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'first name': firstName,
         'last name': lastName,
         'age': age,
-        'phone': phone,
-        'zipCode': zipCode,
+        'phone': phoneValue,
+        'zipCode': zipCodeValue,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -260,10 +263,10 @@ class _EditUserState extends State<EditUser> {
                     String phone = _phoneController.text.trim();
                     String zipCode = _zipCodeController.text.trim();
 
-                    await updateUser(widget.userId, firstName, lastName, age, phone, zipCode)
+                    await updateUser(widget.userId, firstName, lastName, age,
+                            phone, zipCode)
                         .then((_) {
-                      refreshData(
-                          docIDs); 
+                      refreshData(docIDs);
                     });
 
                     Navigator.pop(context);

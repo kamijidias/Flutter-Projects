@@ -148,12 +148,10 @@ class _HomePageState extends State<HomePage> {
                                 ),
                                 GestureDetector(
                                   onTap: () async {
-                                    String documentId = docIDs[index];
-
                                     DocumentSnapshot document =
                                         await FirebaseFirestore.instance
                                             .collection('users')
-                                            .doc(documentId)
+                                            .doc(docIDs[index])
                                             .get();
 
                                     String userId = document.get('userId');

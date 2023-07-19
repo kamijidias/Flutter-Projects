@@ -79,14 +79,14 @@ class _LoginPageState extends State<LoginPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.phone_android,
+                  Icons.flutter_dash_sharp,
                   size: 100,
                 ),
                 SizedBox(
                   height: 70,
                 ),
                 Text(
-                  'Hello Again!',
+                  'My flutter login!',
                   style: GoogleFonts.bebasNeue(
                     fontSize: 52,
                   ),

@@ -102,8 +102,6 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           );
         }
-      } else {
-        print("User is not logged in");
       }
     } catch (error) {
       if (mounted) {
