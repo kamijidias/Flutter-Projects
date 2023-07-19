@@ -35,7 +35,7 @@ class _HomePageState extends State<HomePage> {
           .doc(documentId)
           .delete();
 
-      await refreshData(docIDs); 
+      await refreshData(docIDs);
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -141,7 +141,10 @@ class _HomePageState extends State<HomePage> {
                                       ),
                                     );
                                   },
-                                  child: Icon(Icons.edit),
+                                  child: Icon(
+                                    Icons.edit,
+                                    color: Colors.deepPurple,
+                                  ),
                                 ),
                                 SizedBox(
                                   width: 10.0,
@@ -180,7 +183,10 @@ class _HomePageState extends State<HomePage> {
                                       deleteUser(docIDs[index]);
                                     }
                                   },
-                                  child: Icon(Icons.delete),
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.redAccent,
+                                  ),
                                 ),
                               ],
                             ),
