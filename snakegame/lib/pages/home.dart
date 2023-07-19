@@ -22,6 +22,11 @@ class _HomePageState extends State<HomePage> {
   int rowSize = 10;
   int totalNumberOfSquares = 100;
 
+  bool gameHasStarted = false;
+
+  // user score
+  int currentScore = 0;
+
   // snake position
   List<int> snakePosition = [0, 1, 2];
 
@@ -33,15 +38,68 @@ class _HomePageState extends State<HomePage> {
 
   // start game
   void startGame() {
+    gameHasStarted = true;
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
         // keep the snake moving!
         moveSnake();
+
+        // check if the game is over
+        if (gameOver()) {
+          timer.cancel();
+
+          //display a message to the user
+          showDialog(
+            context: context,
+            barrierDismissible: false,
+            builder: (context) {
+              return AlertDialog(
+                title: Text('Game Over'),
+                content: Column(
+                  children: [
+                    Text(
+                      'Your score is: $currentScore',
+                    ),
+                    TextField(
+                      decoration: InputDecoration(hintText: 'Enter name'),
+                    )
+                  ],
+                ),
+                actions: [
+                  MaterialButton(
+                    onPressed: () {
+                      submitScore();
+                      Navigator.pop(context);
+                      newGame();
+                    },
+                    color: Colors.pink,
+                    child: Text('Submit'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
       });
     });
   }
 
+  void submitScore() {
+    //
+  }
+
+  void newGame() {
+    setState(() {
+      snakePosition = [0, 1, 2];
+      foodPosition = 55;
+      currentDirection = snake_Direction.RIGHT;
+      gameHasStarted = false;
+      currentScore = 0;
+    });
+  }
+
   void eatFood() {
+    currentScore++;
     // makin sure the new food is not where the snake is
     while (snakePosition.contains(foodPosition)) {
       foodPosition = Random().nextInt(totalNumberOfSquares);
@@ -108,6 +166,20 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  // game over
+  bool gameOver() {
+    // the game is over when the snake runs into itself
+    // this occours when there is a duplicate position in the snakePosition list
+
+    // this list is the body of the snake (no head)
+    List<int> bodySnake = snakePosition.sublist(0, snakePosition.length - 1);
+
+    if (bodySnake.contains(snakePosition.last)) {
+      return true;
+    }
+    return false;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -116,7 +188,25 @@ class _HomePageState extends State<HomePage> {
         children: [
           // high scores
           Expanded(
-            child: Container(),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                // user current score
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('Current Score'),
+                    Text(
+                      currentScore.toString(),
+                      style: TextStyle(fontSize: 40),
+                    ),
+                  ],
+                ),
+
+                // highscores, top 5
+                Text('highscores...'),
+              ],
+            ),
           ),
 
           // game grid
@@ -166,9 +256,9 @@ class _HomePageState extends State<HomePage> {
             child: Container(
               child: Center(
                 child: MaterialButton(
-                  onPressed: startGame,
+                  onPressed: gameHasStarted ? () {} : startGame,
+                  color: gameHasStarted ? Colors.grey : Colors.pink,
                   child: Text('Play'),
-                  color: Colors.pink,
                 ),
               ),
             ),
