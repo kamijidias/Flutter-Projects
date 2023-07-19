@@ -1,6 +1,7 @@
-// ignore_for_file: prefer_const_constructors, constant_identifier_names
+// ignore_for_file: prefer_const_constructors, constant_identifier_names, camel_case_types
 
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:snakegame/utils/blank_pixel.dart';
@@ -34,9 +35,17 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
+        // keep the snake moving!
         moveSnake();
       });
     });
+  }
+
+  void eatFood() {
+    // makin sure the new food is not where the snake is
+    while (snakePosition.contains(foodPosition)) {
+      foodPosition = Random().nextInt(totalNumberOfSquares);
+    }
   }
 
   void moveSnake() {
@@ -50,8 +59,6 @@ class _HomePageState extends State<HomePage> {
           } else {
             snakePosition.add(snakePosition.last + 1);
           }
-          // remove tail
-          snakePosition.removeAt(0);
         }
         break;
       case snake_Direction.LEFT:
@@ -63,8 +70,6 @@ class _HomePageState extends State<HomePage> {
           } else {
             snakePosition.add(snakePosition.last - 1);
           }
-          // remove tail
-          snakePosition.removeAt(0);
         }
         break;
       case snake_Direction.UP:
@@ -72,12 +77,11 @@ class _HomePageState extends State<HomePage> {
           // add a head
           // if snake is at the top wall, need to re-adjust
           if (snakePosition.last < rowSize) {
-            snakePosition.add(snakePosition.last - rowSize + totalNumberOfSquares);
+            snakePosition
+                .add(snakePosition.last - rowSize + totalNumberOfSquares);
           } else {
-            snakePosition.add(snakePosition.last - rowSize );
+            snakePosition.add(snakePosition.last - rowSize);
           }
-          // remove tail
-          snakePosition.removeAt(0);
         }
         break;
       case snake_Direction.DOWN:
@@ -85,15 +89,22 @@ class _HomePageState extends State<HomePage> {
           // add a head
           // if snake is at the bottom wall, need to re-adjust
           if (snakePosition.last + rowSize > totalNumberOfSquares) {
-            snakePosition.add(snakePosition.last + rowSize - totalNumberOfSquares);
+            snakePosition
+                .add(snakePosition.last + rowSize - totalNumberOfSquares);
           } else {
-            snakePosition.add(snakePosition.last + rowSize );
+            snakePosition.add(snakePosition.last + rowSize);
           }
-          // remove tail
-          snakePosition.removeAt(0);
         }
         break;
       default:
+    }
+
+    // snake is eating food
+    if (snakePosition.last == foodPosition) {
+      eatFood();
+    } else {
+      // remove tail
+      snakePosition.removeAt(0);
     }
   }
 
