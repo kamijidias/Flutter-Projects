@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, constant_identifier_names
 
 import 'dart:async';
 
@@ -14,6 +14,8 @@ class HomePage extends StatefulWidget {
   State<HomePage> createState() => _HomePageState();
 }
 
+enum snake_Direction { UP, DOWN, LEFT, RIGHT }
+
 class _HomePageState extends State<HomePage> {
   // grid dimensions
   int rowSize = 10;
@@ -22,19 +24,77 @@ class _HomePageState extends State<HomePage> {
   // snake position
   List<int> snakePosition = [0, 1, 2];
 
+  // snake direction is initially to the right
+  var currentDirection = snake_Direction.RIGHT;
+
   // food position
   int foodPosition = 55;
 
   // start game
-  void startGame(){
+  void startGame() {
     Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
-        // add a new header
-        snakePosition.add(snakePosition.last + 1);
-        // remove the tail
-        snakePosition.removeAt(0);
+        moveSnake();
       });
-     });
+    });
+  }
+
+  void moveSnake() {
+    switch (currentDirection) {
+      case snake_Direction.RIGHT:
+        {
+          // add a head
+          // if snake is at the right wall, need to re-adjust
+          if (snakePosition.last % rowSize == 9) {
+            snakePosition.add(snakePosition.last + 1 - rowSize);
+          } else {
+            snakePosition.add(snakePosition.last + 1);
+          }
+          // remove tail
+          snakePosition.removeAt(0);
+        }
+        break;
+      case snake_Direction.LEFT:
+        {
+          // add a head
+          // if snake is at the left wall, need to re-adjust
+          if (snakePosition.last % rowSize == 0) {
+            snakePosition.add(snakePosition.last - 1 + rowSize);
+          } else {
+            snakePosition.add(snakePosition.last - 1);
+          }
+          // remove tail
+          snakePosition.removeAt(0);
+        }
+        break;
+      case snake_Direction.UP:
+        {
+          // add a head
+          // if snake is at the top wall, need to re-adjust
+          if (snakePosition.last < rowSize) {
+            snakePosition.add(snakePosition.last - rowSize + totalNumberOfSquares);
+          } else {
+            snakePosition.add(snakePosition.last - rowSize );
+          }
+          // remove tail
+          snakePosition.removeAt(0);
+        }
+        break;
+      case snake_Direction.DOWN:
+        {
+          // add a head
+          // if snake is at the bottom wall, need to re-adjust
+          if (snakePosition.last + rowSize > totalNumberOfSquares) {
+            snakePosition.add(snakePosition.last + rowSize - totalNumberOfSquares);
+          } else {
+            snakePosition.add(snakePosition.last + rowSize );
+          }
+          // remove tail
+          snakePosition.removeAt(0);
+        }
+        break;
+      default:
+    }
   }
 
   @override
@@ -53,19 +113,23 @@ class _HomePageState extends State<HomePage> {
             flex: 3,
             child: GestureDetector(
               onVerticalDragUpdate: (details) {
-                if (details.delta.dy > 0){
-                  print('move down');
+                if (details.delta.dy > 0 &&
+                    currentDirection != snake_Direction.UP) {
+                  currentDirection = snake_Direction.DOWN;
                 }
-                if (details.delta.dy < 0){
-                  print('move up');
+                if (details.delta.dy < 0 &&
+                    currentDirection != snake_Direction.DOWN) {
+                  currentDirection = snake_Direction.UP;
                 }
               },
               onHorizontalDragUpdate: (details) {
-                if (details.delta.dx > 0){
-                  print('move right');
+                if (details.delta.dx > 0 &&
+                    currentDirection != snake_Direction.LEFT) {
+                  currentDirection = snake_Direction.RIGHT;
                 }
-                if (details.delta.dx < 0){
-                  print('move left');
+                if (details.delta.dx < 0 &&
+                    currentDirection != snake_Direction.RIGHT) {
+                  currentDirection = snake_Direction.LEFT;
                 }
               },
               child: GridView.builder(
