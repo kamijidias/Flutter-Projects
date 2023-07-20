@@ -27,7 +27,11 @@ class _HomePageState extends State<HomePage> {
 
   // game settings
   bool gameHasStarted = false;
+  bool isGamePaused = false;
   final _nameController = TextEditingController();
+  Timer? gameTimer;
+  DateTime? lastDirectionChangeTime;
+  List<LogicalKeyboardKey> pressedKeys = [];
 
   // user score
   int currentScore = 0;
@@ -67,7 +71,7 @@ class _HomePageState extends State<HomePage> {
   // start game
   void startGame() {
     gameHasStarted = true;
-    Timer.periodic(Duration(milliseconds: 200), (timer) {
+    gameTimer = Timer.periodic(Duration(milliseconds: 200), (timer) {
       setState(() {
         // keep the snake moving!
         moveSnake();
@@ -219,6 +223,36 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
+  // game paused
+  void gamePaused() {
+    setState(() {
+      isGamePaused = !isGamePaused;
+    });
+
+    if (isGamePaused) {
+      gameTimer?.cancel();
+    } else {
+      startGame();
+    }
+  }
+
+  // direction in computer with keyboard
+  void updateDirection() {
+    if (pressedKeys.contains(LogicalKeyboardKey.arrowDown) &&
+        currentDirection != snake_Direction.UP) {
+      currentDirection = snake_Direction.DOWN;
+    } else if (pressedKeys.contains(LogicalKeyboardKey.arrowUp) &&
+        currentDirection != snake_Direction.DOWN) {
+      currentDirection = snake_Direction.UP;
+    } else if (pressedKeys.contains(LogicalKeyboardKey.arrowLeft) &&
+        currentDirection != snake_Direction.RIGHT) {
+      currentDirection = snake_Direction.LEFT;
+    } else if (pressedKeys.contains(LogicalKeyboardKey.arrowRight) &&
+        currentDirection != snake_Direction.LEFT) {
+      currentDirection = snake_Direction.RIGHT;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     // get the screen width
@@ -230,19 +264,23 @@ class _HomePageState extends State<HomePage> {
         focusNode: FocusNode(),
         autofocus: true,
         onKey: (event) {
-          if (event.isKeyPressed(LogicalKeyboardKey.arrowDown) &&
-              currentDirection != snake_Direction.UP) {
-            currentDirection = snake_Direction.DOWN;
-          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowUp) &&
-              currentDirection != snake_Direction.DOWN) {
-            currentDirection = snake_Direction.UP;
-          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowLeft) &&
-              currentDirection != snake_Direction.RIGHT) {
-            currentDirection = snake_Direction.LEFT;
-          } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight) &&
-              currentDirection != snake_Direction.LEFT) {
-            currentDirection = snake_Direction.RIGHT;
-          }
+          setState(() {
+            if (event is RawKeyDownEvent) {
+              if (!pressedKeys.contains(event.logicalKey)) {
+                pressedKeys.add(event.logicalKey);
+              }
+            } else if (event is RawKeyUpEvent) {
+              pressedKeys.remove(event.logicalKey);
+            }
+
+            final currentTime = DateTime.now();
+            if (lastDirectionChangeTime == null ||
+                currentTime.difference(lastDirectionChangeTime!).inMilliseconds >
+                    100) {
+              updateDirection();
+              lastDirectionChangeTime = currentTime;
+            }
+          });
         },
         child: SafeArea(
           child: Align(
@@ -339,6 +377,17 @@ class _HomePageState extends State<HomePage> {
                           }
                         },
                       ),
+                    ),
+                  ),
+
+                  // pause game
+                  Visibility(
+                    visible: gameHasStarted,
+                    child: IconButton(
+                      icon: Icon(isGamePaused ? Icons.play_arrow : Icons.pause),
+                      iconSize: 40,
+                      color: Colors.white,
+                      onPressed: gameHasStarted ? gamePaused : null,
                     ),
                   ),
 
