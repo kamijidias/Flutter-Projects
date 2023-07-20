@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, constant_identifier_names, camel_case_types, non_constant_identifier_names
+// ignore_for_file: prefer_const_constructors, constant_identifier_names, camel_case_types, non_constant_identifier_names, avoid_function_literals_in_foreach_calls
 
 import 'dart:async';
 import 'dart:math';
@@ -121,9 +121,15 @@ class _HomePageState extends State<HomePage> {
     //get acess to the collection
     var database = FirebaseFirestore.instance;
 
+    // check if the name is empty and set 'anonymous
+    String playerName = _nameController.text.trim();
+    if (playerName.isEmpty) {
+      playerName = 'anonymous';
+    }
+
     // add data to firebase
     database.collection('highscores').add({
-      'name': _nameController.text,
+      'name': playerName,
       'score': currentScore,
     });
   }
@@ -269,13 +275,21 @@ class _HomePageState extends State<HomePage> {
               if (!pressedKeys.contains(event.logicalKey)) {
                 pressedKeys.add(event.logicalKey);
               }
+
+              if (event.logicalKey == LogicalKeyboardKey.enter) {
+                if (gameHasStarted) {
+                  gamePaused();
+                }
+              }
             } else if (event is RawKeyUpEvent) {
               pressedKeys.remove(event.logicalKey);
             }
 
             final currentTime = DateTime.now();
             if (lastDirectionChangeTime == null ||
-                currentTime.difference(lastDirectionChangeTime!).inMilliseconds >
+                currentTime
+                        .difference(lastDirectionChangeTime!)
+                        .inMilliseconds >
                     100) {
               updateDirection();
               lastDirectionChangeTime = currentTime;
