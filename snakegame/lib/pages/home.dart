@@ -1,11 +1,13 @@
-// ignore_for_file: prefer_const_constructors, constant_identifier_names, camel_case_types
+// ignore_for_file: prefer_const_constructors, constant_identifier_names, camel_case_types, non_constant_identifier_names
 
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:snakegame/utils/blank_pixel.dart';
 import 'package:snakegame/utils/food_pixel.dart';
+import 'package:snakegame/utils/highscores.dart';
 import 'package:snakegame/utils/snake_pixel.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,6 +39,29 @@ class _HomePageState extends State<HomePage> {
 
   // food position
   int foodPosition = 55;
+
+  // highscores list
+  List<String> highscores_DocIds = [];
+  late final Future? letsGetDocIds;
+
+  @override
+  void initState() {
+    letsGetDocIds = getDocId();
+    super.initState();
+  }
+
+  Future getDocId() async {
+    await FirebaseFirestore.instance
+        .collection('highscores')
+        .orderBy('score', descending: true)
+        .limit(5)
+        .get()
+        .then(
+          (value) => value.docs.forEach((element) {
+            highscores_DocIds.add(element.reference.id);
+          }),
+        );
+  }
 
   // start game
   void startGame() {
@@ -88,10 +113,20 @@ class _HomePageState extends State<HomePage> {
   }
 
   void submitScore() {
-    //
+    //get acess to the collection
+    var database = FirebaseFirestore.instance;
+
+    // add data to firebase
+    database.collection('highscores').add({
+      'name': _nameController.text,
+      'score': currentScore,
+    });
   }
 
-  void newGame() {
+  Future newGame() async {
+    highscores_DocIds = [];
+    await getDocId();
+
     setState(() {
       snakePosition = [0, 1, 2];
       foodPosition = 55;
@@ -203,19 +238,44 @@ class _HomePageState extends State<HomePage> {
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       // user current score
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text('Current Score'),
-                          Text(
-                            currentScore.toString(),
-                            style: TextStyle(fontSize: 40),
-                          ),
-                        ],
+                      Expanded(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Current Score',
+                              style: const TextStyle(color: Colors.blue),
+                            ),
+                            Text(
+                              currentScore.toString(),
+                              style: TextStyle(
+                                  fontSize: 40, color: Colors.redAccent),
+                            ),
+                          ],
+                        ),
                       ),
 
                       // highscores, top 5
-                      Text('highscores...'),
+                      Expanded(
+                        child: gameHasStarted
+                            ? Container()
+                            : Padding(
+                              padding: const EdgeInsets.only(top: 47.0),
+                              child: FutureBuilder(
+                                  future: letsGetDocIds,
+                                  builder: (context, snapshot) {
+                                    return ListView.builder(
+                                      itemCount: highscores_DocIds.length,
+                                      itemBuilder: ((context, index) {
+                                        return HighScores(
+                                          documentId: highscores_DocIds[index],
+                                        );
+                                      }),
+                                    );
+                                  },
+                                ),
+                            ),
+                      )
                     ],
                   ),
                 ),
@@ -264,13 +324,11 @@ class _HomePageState extends State<HomePage> {
 
                 // play button
                 Expanded(
-                  child: Container(
-                    child: Center(
-                      child: MaterialButton(
-                        onPressed: gameHasStarted ? () {} : startGame,
-                        color: gameHasStarted ? Colors.grey : Colors.pink,
-                        child: Text('Play'),
-                      ),
+                  child: Center(
+                    child: MaterialButton(
+                      onPressed: gameHasStarted ? () {} : startGame,
+                      color: gameHasStarted ? Colors.grey : Colors.pink,
+                      child: Text('Play'),
                     ),
                   ),
                 ),
