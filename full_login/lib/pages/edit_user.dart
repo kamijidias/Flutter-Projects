@@ -2,6 +2,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:full_login/pages/home.dart';
 import 'package:full_login/utils/user_services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
@@ -16,7 +17,7 @@ class EditUser extends StatefulWidget {
 
 class _EditUserState extends State<EditUser> {
   var maskFormatter = MaskTextInputFormatter(
-    mask: '(##) #####-####' ,
+    mask: '(##) #####-####',
     filter: {"#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
   );
@@ -45,8 +46,14 @@ class _EditUserState extends State<EditUser> {
           _lastNameController.text = documentSnapshot.get('last name') ?? '';
           int age = documentSnapshot.get('age') ?? 0;
           _ageController.text = age.toString();
-          _phoneController.text = documentSnapshot.get('phone') ?? '';
-          _zipCodeController.text = documentSnapshot.get('zipCode') ?? '';
+          
+          Map<String, dynamic>? data = documentSnapshot.data();
+          if (data != null) {
+            _phoneController.text =
+                data.containsKey('phone') ? data['phone'].toString() : '';
+            _zipCodeController.text =
+                data.containsKey('zipCode') ? data['zipCode'].toString() : '';
+          }
         }
       },
     );
@@ -64,6 +71,7 @@ class _EditUserState extends State<EditUser> {
         'age': age,
         'phone': phoneValue,
         'zipCode': zipCodeValue,
+        'isNewUser': false,
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -276,7 +284,12 @@ class _EditUserState extends State<EditUser> {
                       refreshData(docIDs);
                     });
 
-                    Navigator.pop(context);
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ),
+                    );
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,

@@ -127,13 +127,27 @@ class _RegisterPageState extends State<RegisterPage> {
 
         DocumentReference newUser = users.doc(userId);
 
-        await newUser.set({
-          'userId': userId,
-          'first name': firstName,
-          'last name': lastName,
-          'email': email,
-          'age': age,
-        });
+        // Verificar se o documento do usuário existe
+        DocumentSnapshot userSnapshot = await newUser.get();
+        if (userSnapshot.exists) {
+          // Documento do usuário já existe, então não é um novo usuário
+          await newUser.update({
+            'first name': firstName,
+            'last name': lastName,
+            'age': age,
+          });
+        } else {
+          // Documento do usuário não existe, então é um novo usuário
+          await newUser.set({
+            'userId': userId,
+            'first name': firstName,
+            'last name': lastName,
+            'email': email,
+            'age': age,
+            'isNewUser':
+                true, 
+          });
+        }
 
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(

@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:full_login/pages/edit_user.dart';
+import 'package:full_login/pages/login.dart';
 import 'package:full_login/utils/get_user_data.dart';
 import 'package:full_login/utils/user_services.dart';
 
@@ -88,7 +89,12 @@ class _HomePageState extends State<HomePage> {
                             child: Text('Logout'),
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
-                              Navigator.of(context).pop();
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      LoginPage(),
+                                ),
+                              );
                             },
                           ),
                         ],

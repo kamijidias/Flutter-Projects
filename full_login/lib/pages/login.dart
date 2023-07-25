@@ -1,13 +1,16 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, use_build_context_synchronously
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:full_login/pages/edit_user.dart';
 import 'package:full_login/pages/forgot_password.dart';
+import 'package:full_login/pages/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
-  final VoidCallback showRegisterPage;
-  const LoginPage({Key? key, required this.showRegisterPage}) : super(key: key);
+  final VoidCallback? showRegisterPage;
+  const LoginPage({Key? key, this.showRegisterPage}) : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -18,8 +21,8 @@ class _LoginPageState extends State<LoginPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
 
-  Future signIn() async {
-    // loading circle
+  Future<void> signIn() async {
+    // Show loading circle
     showDialog(
       context: context,
       builder: (context) {
@@ -35,29 +38,61 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      Navigator.of(context).pop();
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        String userId = currentUser.uid;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color.fromARGB(255, 32, 155, 95),
-          content: Text('You have successfully logged in'),
-          duration: Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        DocumentSnapshot userSnapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .get();
+
+        bool isNewUser = userSnapshot['isNewUser'] ?? true;
+
+        // Check if the widget is still mounted before proceeding
+        if (mounted) {
+          Navigator.of(context).pop();
+
+          if (isNewUser) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => EditUser(userId: currentUser.uid,),
+              ),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => HomePage(),
+              ),
+            );
+          }
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color.fromARGB(255, 32, 155, 95),
+              content: Text('You have successfully logged in'),
+              duration: Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+      }
     } on FirebaseAuthException catch (error) {
-      Navigator.of(context).pop();
+      // Check if the widget is still mounted before proceeding
+      if (mounted) {
+        Navigator.of(context).pop();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Colors.redAccent,
-          content: Text(
-            error.message.toString(),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text(
+              error.message.toString(),
+            ),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
           ),
-          duration: Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
+        );
+      }
     }
   }
 
