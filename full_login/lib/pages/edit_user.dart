@@ -1,7 +1,6 @@
 // ignore_for_file: prefer_const_constructors, avoid_unnecessary_containers, use_build_context_synchronously, avoid_function_literals_in_foreach_calls
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:full_login/pages/home.dart';
 import 'package:full_login/utils/user_services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -16,8 +15,13 @@ class EditUser extends StatefulWidget {
 }
 
 class _EditUserState extends State<EditUser> {
-  var maskFormatter = MaskTextInputFormatter(
+  var maskFormatterPhone = MaskTextInputFormatter(
     mask: '(##) #####-####',
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+  var maskFormatterCep = MaskTextInputFormatter(
+    mask: '#####-###',
     filter: {"#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
   );
@@ -25,7 +29,6 @@ class _EditUserState extends State<EditUser> {
   //controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _ageController = TextEditingController();
   final _phoneController = TextEditingController();
   final _zipCodeController = TextEditingController();
 
@@ -44,9 +47,6 @@ class _EditUserState extends State<EditUser> {
         if (documentSnapshot.exists) {
           _firstNameController.text = documentSnapshot.get('first name') ?? '';
           _lastNameController.text = documentSnapshot.get('last name') ?? '';
-          int age = documentSnapshot.get('age') ?? 0;
-          _ageController.text = age.toString();
-          
           Map<String, dynamic>? data = documentSnapshot.data();
           if (data != null) {
             _phoneController.text =
@@ -60,7 +60,7 @@ class _EditUserState extends State<EditUser> {
   }
 
   Future<void> updateUser(String userId, String firstName, String lastName,
-      int age, String? phone, String? zipCode) async {
+      String? phone, String? zipCode) async {
     try {
       final phoneValue = phone ?? '';
       final zipCodeValue = zipCode ?? '';
@@ -68,7 +68,6 @@ class _EditUserState extends State<EditUser> {
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'first name': firstName,
         'last name': lastName,
-        'age': age,
         'phone': phoneValue,
         'zipCode': zipCodeValue,
         'isNewUser': false,
@@ -180,39 +179,6 @@ class _EditUserState extends State<EditUser> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Text(
-                    'Age',
-                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: TextField(
-                    controller: _ageController,
-                    inputFormatters: [
-                      FilteringTextInputFormatter.allow(RegExp(r'[0-9]')),
-                    ],
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.white),
-                          borderRadius: BorderRadius.circular(12)),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurple),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      fillColor: Colors.grey[200],
-                      filled: true,
-                    ),
-                  ),
-                ),
-                SizedBox(
-                  height: 5,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                  child: Text(
                     'Phone',
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
@@ -222,8 +188,10 @@ class _EditUserState extends State<EditUser> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: TextField(
+                  child: TextFormField(
                     controller: _phoneController,
+                    inputFormatters: [maskFormatterPhone],
+                    keyboardType: TextInputType.phone,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -252,8 +220,10 @@ class _EditUserState extends State<EditUser> {
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: TextField(
+                  child: TextFormField(
                     controller: _zipCodeController,
+                    inputFormatters: [maskFormatterCep],
+                    keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                           borderSide: BorderSide(color: Colors.white),
@@ -274,12 +244,11 @@ class _EditUserState extends State<EditUser> {
                   onPressed: () async {
                     String firstName = _firstNameController.text.trim();
                     String lastName = _lastNameController.text.trim();
-                    int age = int.parse(_ageController.text.trim());
                     String phone = _phoneController.text.trim();
                     String zipCode = _zipCodeController.text.trim();
 
-                    await updateUser(widget.userId, firstName, lastName, age,
-                            phone, zipCode)
+                    await updateUser(
+                            widget.userId, firstName, lastName, phone, zipCode)
                         .then((_) {
                       refreshData(docIDs);
                     });

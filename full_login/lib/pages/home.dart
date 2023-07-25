@@ -46,6 +46,10 @@ class _HomePageState extends State<HomePage> {
           behavior: SnackBarBehavior.floating,
         ),
       );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -91,8 +95,7 @@ class _HomePageState extends State<HomePage> {
                               FirebaseAuth.instance.signOut();
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
-                                  builder: (context) =>
-                                      LoginPage(),
+                                  builder: (context) => LoginPage(),
                                 ),
                               );
                             },

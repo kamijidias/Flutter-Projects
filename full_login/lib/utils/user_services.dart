@@ -7,7 +7,6 @@ Future<void> refreshData(List<String> docIDs) async {
 
   await FirebaseFirestore.instance
       .collection('users')
-      .orderBy('age', descending: true)
       .get()
       .then((snapshot) {
     snapshot.docs.forEach((document) {

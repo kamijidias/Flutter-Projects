@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:full_login/pages/login.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'strong_password_validator.dart';
 
 class RegisterPage extends StatefulWidget {
   final VoidCallback showLoginPage;
@@ -21,7 +22,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _confirmPasswordController = TextEditingController();
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
-  final _ageController = TextEditingController();
 
   @override
   void dispose() {
@@ -30,7 +30,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _confirmPasswordController.dispose();
     _firstNameController.dispose();
     _lastNameController.dispose();
-    _ageController.dispose();
     super.dispose();
   }
 
@@ -84,7 +83,6 @@ class _RegisterPageState extends State<RegisterPage> {
         _firstNameController.text.trim(),
         _lastNameController.text.trim(),
         _emailController.text.trim(),
-        int.parse(_ageController.text.trim()),
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -99,7 +97,7 @@ class _RegisterPageState extends State<RegisterPage> {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) =>
-              LoginPage(showRegisterPage: widget.showLoginPage),
+              LoginPage(),
         ),
       );
     } on FirebaseAuthException catch (error) {
@@ -117,7 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   Future<void> addUserDetails(
-      String firstName, String lastName, String email, int age) async {
+      String firstName, String lastName, String email) async {
     CollectionReference users = FirebaseFirestore.instance.collection('users');
 
     try {
@@ -134,7 +132,6 @@ class _RegisterPageState extends State<RegisterPage> {
           await newUser.update({
             'first name': firstName,
             'last name': lastName,
-            'age': age,
           });
         } else {
           // Documento do usuário não existe, então é um novo usuário
@@ -143,9 +140,7 @@ class _RegisterPageState extends State<RegisterPage> {
             'first name': firstName,
             'last name': lastName,
             'email': email,
-            'age': age,
-            'isNewUser':
-                true, 
+            'isNewUser': true,
           });
         }
 
@@ -211,6 +206,7 @@ class _RegisterPageState extends State<RegisterPage> {
       return false;
     }
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -289,31 +285,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   height: 12,
                 ),
 
-                //Age Textfield
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
-                  child: TextField(
-                    controller: _ageController,
-                    decoration: InputDecoration(
-                      enabledBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurple),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      hintText: 'Age',
-                      fillColor: Colors.grey[200],
-                      filled: true,
-                    ),
-                  ),
-                ),
-
-                SizedBox(
-                  height: 12,
-                ),
-
                 //Email Textfield
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 25.0),
@@ -345,6 +316,10 @@ class _RegisterPageState extends State<RegisterPage> {
                   child: TextField(
                     obscureText: true,
                     controller: _passwordController,
+                    onChanged: (value) {
+                      setState(() {
+                      });
+                    },
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
@@ -357,6 +332,15 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintText: 'Password',
                       fillColor: Colors.grey[200],
                       filled: true,
+                      suffixIcon: _passwordController.text.isNotEmpty
+                          ? Icon(
+                              getIconForPasswordStrength(
+                                  _passwordController.text),
+                              color: isStrongPassword(_passwordController.text)
+                                  ? Colors.green
+                                  : Colors.red,
+                            )
+                          : null,
                     ),
                   ),
                 ),
