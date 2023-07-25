@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:full_login/utils/user_services.dart';
+import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class EditUser extends StatefulWidget {
   final String userId;
@@ -14,6 +15,12 @@ class EditUser extends StatefulWidget {
 }
 
 class _EditUserState extends State<EditUser> {
+  var maskFormatter = MaskTextInputFormatter(
+    mask: '(##) #####-####' ,
+    filter: {"#": RegExp(r'[0-9]')},
+    type: MaskAutoCompletionType.lazy,
+  );
+
   //controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
