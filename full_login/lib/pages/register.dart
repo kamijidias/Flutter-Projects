@@ -135,7 +135,7 @@ class _RegisterPageState extends State<RegisterPage> {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               backgroundColor: const Color.fromARGB(255, 32, 155, 95),
-              content: Text('User details added successfully'),
+              content: Text('User registered'),
               duration: Duration(seconds: 3),
               behavior: SnackBarBehavior.floating,
             ),

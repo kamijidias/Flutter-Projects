@@ -19,6 +19,8 @@ class _HomePageState extends State<HomePage> {
   bool showRegisterPage = false;
   final user = FirebaseAuth.instance.currentUser!;
 
+  TextEditingController _searchController = TextEditingController();
+
   // document IDs
   List<String> docIDs = [];
 
@@ -94,6 +96,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void _showSearchDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Search by First Name'),
+          content: TextField(
+            decoration: InputDecoration(hintText: 'Digite aqui'),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                String searchTerm = _searchController.text;
+              },
+              child: Text('Filter'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -105,7 +135,9 @@ class _HomePageState extends State<HomePage> {
         ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              _showSearchDialog(context);
+            },
             icon: Icon(Icons.search),
           ),
           GestureDetector(

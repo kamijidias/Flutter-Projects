@@ -491,6 +491,9 @@ class _EditUserState extends State<EditUser> {
                     ),
                   ),
                 ),
+                SizedBox(
+                  height: 5,
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Text(
