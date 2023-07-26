@@ -27,6 +27,7 @@ class _EditUserState extends State<EditUser> {
   );
 
   bool _updateSucess = false;
+  String? _userEmail;
 
   //controllers
   final _firstNameController = TextEditingController();
@@ -41,6 +42,8 @@ class _EditUserState extends State<EditUser> {
   final _complementController = TextEditingController();
 
   //initial controllers
+  String? _initialFirstName;
+  String? _initialLastName;
   String? _initialPhone;
   String? _initialZipCode;
   String? _initialAddress;
@@ -63,34 +66,37 @@ class _EditUserState extends State<EditUser> {
         .then((documentSnapshot) {
       if (documentSnapshot.exists) {
         setState(() {
+          _userEmail = documentSnapshot.get('email');
           _firstNameController.text = documentSnapshot.get('first name') ?? '';
           _lastNameController.text = documentSnapshot.get('last name') ?? '';
           Map<String, dynamic>? data = documentSnapshot.data();
           if (data != null) {
             _phoneController.text = data.containsKey('phone')
                 ? data['phone'].toString()
-                : _initialPhone ?? ''; // Set to empty if it's null
+                : _initialPhone ?? ''; 
             _zipCodeController.text = data.containsKey('zipCode')
                 ? data['zipCode'].toString()
-                : _initialZipCode ?? ''; // Set to empty if it's null
+                : _initialZipCode ?? ''; 
             _addressController.text = data.containsKey('address')
                 ? data['address'].toString()
-                : _initialAddress ?? ''; // Set to empty if it's null
+                : _initialAddress ?? ''; 
             _numberController.text = data.containsKey('number')
                 ? data['number'].toString()
-                : _initialNumber ?? ''; // Set to empty if it's null
+                : _initialNumber ?? ''; 
             _districtController.text = data.containsKey('district')
                 ? data['district'].toString()
-                : _initialDistrict ?? ''; // Set to empty if it's null
+                : _initialDistrict ?? ''; 
             _cityController.text =
                 data.containsKey('city') ? data['city'].toString() : '';
             _stateController.text =
                 data.containsKey('state') ? data['state'].toString() : '';
             _complementController.text = data.containsKey('complement')
                 ? data['complement'].toString()
-                : _initialComplement ?? ''; // Set to empty if it's null
+                : _initialComplement ?? ''; 
 
             // Store the initial values for later use in the cancel button
+            _initialFirstName = _firstNameController.text;
+            _initialLastName = _lastNameController.text;
             _initialPhone = _phoneController.text;
             _initialZipCode = _zipCodeController.text;
             _initialAddress = _addressController.text;
@@ -119,7 +125,6 @@ class _EditUserState extends State<EditUser> {
     String complement,
   ) async {
     try {
-
       if (phone == null || phone.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -183,6 +188,8 @@ class _EditUserState extends State<EditUser> {
   void _cancelChanges() {
     setState(() {
       // Reset values in controllers
+      _firstNameController.text = _initialFirstName ?? '';
+      _lastNameController.text = _initialLastName ?? '';
       _phoneController.text = _initialPhone ?? '';
       _zipCodeController.text = _initialZipCode ?? '';
       _addressController.text = _initialAddress ?? '';
@@ -208,7 +215,7 @@ class _EditUserState extends State<EditUser> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Edit User'),
+        title: _userEmail != null ? Text(_userEmail!) :  Text('Edit User'),
         centerTitle: true,
         backgroundColor: Colors.deepPurple,
       ),
@@ -546,13 +553,13 @@ class _EditUserState extends State<EditUser> {
                     });
 
                     if (_updateSucess) {
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                      (route) => false,
-                    );
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => HomePage(),
+                        ),
+                        (route) => false,
+                      );
                     }
                   },
                   style: ElevatedButton.styleFrom(
@@ -572,7 +579,7 @@ class _EditUserState extends State<EditUser> {
                   ),
                   child: Text('Cancel'),
                 ),
-                SizedBox(height: 2),
+                SizedBox(height: 20),
               ],
             ),
           ),

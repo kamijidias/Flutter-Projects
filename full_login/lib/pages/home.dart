@@ -22,9 +22,6 @@ class _HomePageState extends State<HomePage> {
   // document IDs
   List<String> docIDs = [];
 
-  // Lista com os IDs dos usuários filtrados
-  List<String> filteredDocIDs = [];
-
   @override
   void initState() {
     super.initState();
@@ -50,9 +47,12 @@ class _HomePageState extends State<HomePage> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      Navigator.pushReplacement(
+      Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (context) => HomePage()),
+        MaterialPageRoute(
+          builder: (context) => HomePage(),
+        ),
+        (route) => false,
       );
     } catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -64,6 +64,34 @@ class _HomePageState extends State<HomePage> {
         ),
       );
     }
+  }
+
+  void showDeleteConfirmationDialog(String docId) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text('Are you sure you want to delete this user?'),
+          actions: [
+            TextButton(
+              child: Text('Cancel'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text('Delete'),
+              onPressed: () async {
+                Navigator.of(context).pop();
+
+                deleteUser(docId);
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -101,11 +129,12 @@ class _HomePageState extends State<HomePage> {
                             child: Text('Logout'),
                             onPressed: () {
                               FirebaseAuth.instance.signOut();
-                              Navigator.of(context).pushReplacement(
+                              Navigator.pushAndRemoveUntil(
+                                context,
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(
-                                      showRegisterPage: () => showRegisterPage),
+                                  builder: (context) => LoginPage(),
                                 ),
+                                (route) => false,
                               );
                             },
                           ),
@@ -124,6 +153,16 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 16.0),
+              child: Text(
+                'List of Users',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ),
             Expanded(
               child: FutureBuilder<void>(
                 future: Future.value(),
@@ -198,7 +237,8 @@ class _HomePageState extends State<HomePage> {
                                         },
                                       );
                                     } else {
-                                      deleteUser(docIDs[index]);
+                                      showDeleteConfirmationDialog(
+                                          docIDs[index]);
                                     }
                                   },
                                   child: Icon(

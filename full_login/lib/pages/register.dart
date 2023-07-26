@@ -8,8 +8,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'strong_password_validator.dart';
 
 class RegisterPage extends StatefulWidget {
-  final VoidCallback showLoginPage;
-  const RegisterPage({Key? key, required this.showLoginPage}) : super(key: key);
+  final VoidCallback? showLoginPage;
+  const RegisterPage({Key? key, this.showLoginPage}) : super(key: key);
 
   @override
   State<RegisterPage> createState() => _RegisterPageState();
@@ -85,22 +85,11 @@ class _RegisterPageState extends State<RegisterPage> {
         _emailController.text.trim(),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: const Color.fromARGB(255, 32, 155, 95),
-          content: Text('User registered successfully'),
-          duration: Duration(seconds: 3),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
-          builder: (context) =>
-              LoginPage(),
+          builder: (context) => LoginPage(),
         ),
       );
-      
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -126,16 +115,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
         DocumentReference newUser = users.doc(userId);
 
-        // Verificar se o documento do usuário existe
         DocumentSnapshot userSnapshot = await newUser.get();
         if (userSnapshot.exists) {
-          // Documento do usuário já existe, então não é um novo usuário
           await newUser.update({
             'first name': firstName,
             'last name': lastName,
           });
         } else {
-          // Documento do usuário não existe, então é um novo usuário
           await newUser.set({
             'userId': userId,
             'first name': firstName,
@@ -207,7 +193,6 @@ class _RegisterPageState extends State<RegisterPage> {
       return false;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -318,8 +303,7 @@ class _RegisterPageState extends State<RegisterPage> {
                     obscureText: true,
                     controller: _passwordController,
                     onChanged: (value) {
-                      setState(() {
-                      });
+                      setState(() {});
                     },
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
@@ -400,27 +384,34 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
                 SizedBox(
-                  height: 30,
+                  height: 15,
                 ),
 
-                //not a member? register now
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'I am a member!',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    GestureDetector(
-                      onTap: widget.showLoginPage,
-                      child: Text(
-                        ' Login now',
-                        style: TextStyle(
-                            color: Colors.blue, fontWeight: FontWeight.bold),
+                //login now
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Center(
+                        child: Text(
+                          'Login Now',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                )
+                  ),
+                ),
               ],
             ),
           ),

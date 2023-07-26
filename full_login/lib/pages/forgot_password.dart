@@ -13,14 +13,28 @@ class ForgotPasswordPage extends StatefulWidget {
 class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   //controllers
   final _emailController = TextEditingController();
+  final _fistNameController = TextEditingController();
 
   @override
   void dispose() {
     _emailController.dispose();
+    _fistNameController.dispose();
     super.dispose();
   }
 
   Future passwordReset() async {
+    if (_fistNameController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.redAccent,
+          content: Text('Please fill in the First Name field.'),
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
     try {
       await FirebaseAuth.instance.sendPasswordResetEmail(
         email: _emailController.text.trim(),
@@ -71,7 +85,31 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           ),
 
           SizedBox(
-            height: 20,
+            height: 10,
+          ),
+
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 25.0),
+            child: TextField(
+              controller: _fistNameController,
+              decoration: InputDecoration(
+                enabledBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.white),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                focusedBorder: OutlineInputBorder(
+                  borderSide: BorderSide(color: Colors.deepPurple),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                hintText: 'First Name',
+                fillColor: Colors.grey[200],
+                filled: true,
+              ),
+            ),
+          ),
+
+          SizedBox(
+            height: 10,
           ),
 
           //Email Textfield

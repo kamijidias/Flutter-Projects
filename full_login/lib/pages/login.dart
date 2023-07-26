@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:full_login/pages/edit_user.dart';
 import 'package:full_login/pages/forgot_password.dart';
 import 'package:full_login/pages/home.dart';
+import 'package:full_login/pages/register.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -56,7 +57,9 @@ class _LoginPageState extends State<LoginPage> {
           if (isNewUser) {
             Navigator.of(context).pushReplacement(
               MaterialPageRoute(
-                builder: (context) => EditUser(userId: currentUser.uid,),
+                builder: (context) => EditUser(
+                  userId: currentUser.uid,
+                ),
               ),
             );
           } else {
@@ -244,27 +247,38 @@ class _LoginPageState extends State<LoginPage> {
                 ),
 
                 SizedBox(
-                  height: 30,
+                  height: 15,
                 ),
 
-                //Not a member? register now
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      'Not a member?',
-                      style: TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    GestureDetector(
-                      onTap: widget.showRegisterPage,
-                      child: Text(
-                        ' Register now',
-                        style: TextStyle(
-                            color: Colors.blue, fontWeight: FontWeight.bold),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RegisterPage(),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(18),
+                      decoration: BoxDecoration(
+                          color: Colors.grey,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: Center(
+                        child: Text(
+                          'Register Now',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
                     ),
-                  ],
-                )
+                  ),
+                ),
               ],
             ),
           ),
