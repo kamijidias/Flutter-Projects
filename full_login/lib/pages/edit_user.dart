@@ -26,11 +26,29 @@ class _EditUserState extends State<EditUser> {
     type: MaskAutoCompletionType.lazy,
   );
 
+  bool _updateSucess = false;
+
   //controllers
   final _firstNameController = TextEditingController();
   final _lastNameController = TextEditingController();
   final _phoneController = TextEditingController();
   final _zipCodeController = TextEditingController();
+  final _addressController = TextEditingController();
+  final _numberController = TextEditingController();
+  final _districtController = TextEditingController();
+  final _cityController = TextEditingController();
+  final _stateController = TextEditingController();
+  final _complementController = TextEditingController();
+
+  //initial controllers
+  String? _initialPhone;
+  String? _initialZipCode;
+  String? _initialAddress;
+  String? _initialNumber;
+  String? _initialDistrict;
+  String? _initialCity;
+  String? _initialState;
+  String? _initialComplement;
 
   // document IDs
   List<String> docIDs = [];
@@ -42,36 +60,105 @@ class _EditUserState extends State<EditUser> {
         .collection('users')
         .doc(widget.userId)
         .get()
-        .then(
-      (documentSnapshot) {
-        if (documentSnapshot.exists) {
+        .then((documentSnapshot) {
+      if (documentSnapshot.exists) {
+        setState(() {
           _firstNameController.text = documentSnapshot.get('first name') ?? '';
           _lastNameController.text = documentSnapshot.get('last name') ?? '';
           Map<String, dynamic>? data = documentSnapshot.data();
           if (data != null) {
-            _phoneController.text =
-                data.containsKey('phone') ? data['phone'].toString() : '';
-            _zipCodeController.text =
-                data.containsKey('zipCode') ? data['zipCode'].toString() : '';
+            _phoneController.text = data.containsKey('phone')
+                ? data['phone'].toString()
+                : _initialPhone ?? ''; // Set to empty if it's null
+            _zipCodeController.text = data.containsKey('zipCode')
+                ? data['zipCode'].toString()
+                : _initialZipCode ?? ''; // Set to empty if it's null
+            _addressController.text = data.containsKey('address')
+                ? data['address'].toString()
+                : _initialAddress ?? ''; // Set to empty if it's null
+            _numberController.text = data.containsKey('number')
+                ? data['number'].toString()
+                : _initialNumber ?? ''; // Set to empty if it's null
+            _districtController.text = data.containsKey('district')
+                ? data['district'].toString()
+                : _initialDistrict ?? ''; // Set to empty if it's null
+            _cityController.text =
+                data.containsKey('city') ? data['city'].toString() : '';
+            _stateController.text =
+                data.containsKey('state') ? data['state'].toString() : '';
+            _complementController.text = data.containsKey('complement')
+                ? data['complement'].toString()
+                : _initialComplement ?? ''; // Set to empty if it's null
+
+            // Store the initial values for later use in the cancel button
+            _initialPhone = _phoneController.text;
+            _initialZipCode = _zipCodeController.text;
+            _initialAddress = _addressController.text;
+            _initialNumber = _numberController.text;
+            _initialDistrict = _districtController.text;
+            _initialCity = _cityController.text;
+            _initialState = _stateController.text;
+            _initialComplement = _complementController.text;
           }
-        }
-      },
-    );
+        });
+      }
+    });
   }
 
-  Future<void> updateUser(String userId, String firstName, String lastName,
-      String? phone, String? zipCode) async {
+  Future<void> updateUser(
+    String userId,
+    String firstName,
+    String lastName,
+    String? phone,
+    String? zipCode,
+    String address,
+    String number,
+    String district,
+    String city,
+    String state,
+    String complement,
+  ) async {
     try {
-      final phoneValue = phone ?? '';
-      final zipCodeValue = zipCode ?? '';
+
+      if (phone == null || phone.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Phone is required'),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
+
+      if (zipCode == null || zipCode.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.redAccent,
+            content: Text('Zip Code is required'),
+            duration: Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
 
       await FirebaseFirestore.instance.collection('users').doc(userId).update({
         'first name': firstName,
         'last name': lastName,
-        'phone': phoneValue,
-        'zipCode': zipCodeValue,
+        'phone': phone,
+        'zipCode': zipCode,
         'isNewUser': false,
+        'address': address,
+        'number': number,
+        'district': district,
+        'city': city,
+        'state': state,
+        'complement': complement,
       });
+
+      _updateSucess = true;
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -93,6 +180,30 @@ class _EditUserState extends State<EditUser> {
     }
   }
 
+  void _cancelChanges() {
+    setState(() {
+      // Reset values in controllers
+      _phoneController.text = _initialPhone ?? '';
+      _zipCodeController.text = _initialZipCode ?? '';
+      _addressController.text = _initialAddress ?? '';
+      _numberController.text = _initialNumber ?? '';
+      _districtController.text = _initialDistrict ?? '';
+      _cityController.text = _initialCity ?? '';
+      _stateController.text = _initialState ?? '';
+      _complementController.text = _initialComplement ?? '';
+    });
+
+    // Exibir um SnackBar informando que as alterações foram desfeitas
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Colors.orange,
+        content: Text('Changes reverted'),
+        duration: Duration(seconds: 3),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,13 +218,6 @@ class _EditUserState extends State<EditUser> {
           child: Container(
             child: Column(
               children: [
-                Icon(
-                  Icons.person,
-                  size: 120,
-                ),
-                SizedBox(
-                  height: 20,
-                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 30.0),
                   child: Text(
@@ -237,6 +341,178 @@ class _EditUserState extends State<EditUser> {
                     ),
                   ),
                 ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Address',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _addressController,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      counter: SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Number',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _numberController,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      counter: SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Neighborhood (district)',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _districtController,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      counter: SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'City',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _cityController,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      counter: SizedBox.shrink(),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'State',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _stateController,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 30.0),
+                  child: Text(
+                    'Complement (additional address info)',
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                SizedBox(
+                  height: 5,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 25.0),
+                  child: TextFormField(
+                    controller: _complementController,
+                    maxLength: 40,
+                    decoration: InputDecoration(
+                      enabledBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white),
+                          borderRadius: BorderRadius.circular(12)),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      fillColor: Colors.grey[200],
+                      filled: true,
+                      counter: SizedBox.shrink(),
+                    ),
+                  ),
+                ),
                 SizedBox(
                   height: 20,
                 ),
@@ -246,19 +522,38 @@ class _EditUserState extends State<EditUser> {
                     String lastName = _lastNameController.text.trim();
                     String phone = _phoneController.text.trim();
                     String zipCode = _zipCodeController.text.trim();
+                    String address = _addressController.text.trim();
+                    String number = _numberController.text.trim();
+                    String district = _districtController.text.trim();
+                    String city = _cityController.text.trim();
+                    String state = _stateController.text.trim();
+                    String complement = _complementController.text.trim();
 
                     await updateUser(
-                            widget.userId, firstName, lastName, phone, zipCode)
+                            widget.userId,
+                            firstName,
+                            lastName,
+                            phone,
+                            zipCode,
+                            address,
+                            number,
+                            district,
+                            city,
+                            state,
+                            complement)
                         .then((_) {
                       refreshData(docIDs);
                     });
 
-                    Navigator.pushReplacement(
+                    if (_updateSucess) {
+                    Navigator.pushAndRemoveUntil(
                       context,
                       MaterialPageRoute(
                         builder: (context) => HomePage(),
                       ),
+                      (route) => false,
                     );
+                    }
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.deepPurple,
@@ -266,6 +561,18 @@ class _EditUserState extends State<EditUser> {
                   ),
                   child: Text('Save'),
                 ),
+                SizedBox(
+                  height: 10,
+                ),
+                ElevatedButton(
+                  onPressed: _cancelChanges,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.grey,
+                    minimumSize: Size(180, 50),
+                  ),
+                  child: Text('Cancel'),
+                ),
+                SizedBox(height: 2),
               ],
             ),
           ),

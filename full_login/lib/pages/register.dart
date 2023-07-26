@@ -100,6 +100,7 @@ class _RegisterPageState extends State<RegisterPage> {
               LoginPage(),
         ),
       );
+      
     } on FirebaseAuthException catch (error) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(

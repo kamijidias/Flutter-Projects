@@ -16,10 +16,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool showRegisterPage = false;
   final user = FirebaseAuth.instance.currentUser!;
 
   // document IDs
   List<String> docIDs = [];
+
+  // Lista com os IDs dos usuários filtrados
+  List<String> filteredDocIDs = [];
 
   @override
   void initState() {
@@ -72,6 +76,10 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(fontSize: 16),
         ),
         actions: [
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.search),
+          ),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -95,7 +103,8 @@ class _HomePageState extends State<HomePage> {
                               FirebaseAuth.instance.signOut();
                               Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(
-                                  builder: (context) => LoginPage(),
+                                  builder: (context) => LoginPage(
+                                      showRegisterPage: () => showRegisterPage),
                                 ),
                               );
                             },
