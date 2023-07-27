@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_function_literals_in_foreach_calls, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, avoid_function_literals_in_foreach_calls, use_build_context_synchronously, deprecated_member_use
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,10 +19,12 @@ class _HomePageState extends State<HomePage> {
   bool showRegisterPage = false;
   final user = FirebaseAuth.instance.currentUser!;
 
-  TextEditingController _searchController = TextEditingController();
+  final _searchController = TextEditingController();
 
   // document IDs
   List<String> docIDs = [];
+
+  List<String> filteredDocIDs = [];
 
   @override
   void initState() {
@@ -96,14 +98,15 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _showSearchDialog(BuildContext context) {
-    showDialog(
+  Future<void> _showSearchDialog(BuildContext context) async {
+    String? searchTerm = await showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('Search by First Name'),
           content: TextField(
-            decoration: InputDecoration(hintText: 'Digite aqui'),
+            controller: _searchController,
+            decoration: InputDecoration(hintText: 'Search'),
           ),
           actions: [
             TextButton(
@@ -114,7 +117,7 @@ class _HomePageState extends State<HomePage> {
             ),
             TextButton(
               onPressed: () {
-                String searchTerm = _searchController.text;
+                Navigator.pop(context, _searchController.text);
               },
               child: Text('Filter'),
             ),
@@ -122,6 +125,60 @@ class _HomePageState extends State<HomePage> {
         );
       },
     );
+
+    if (searchTerm != null) {
+      filterData(searchTerm);
+    }
+  }
+
+  Future<void> filterData(String searchTerm) async {
+    if (searchTerm.isEmpty) {
+      filteredDocIDs = List.from(docIDs);
+    } else {
+      filteredDocIDs.clear();
+      for (String docID in docIDs) {
+        DocumentSnapshot snapshot = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(docID)
+            .get();
+
+        if (snapshot.exists) {
+          Map<String, dynamic>? data = snapshot.data() as Map<String, dynamic>?;
+
+          if (data != null) {
+            String firstName = data['first name'];
+            String lastName = data['last name'];
+            String email = data['email'];
+
+            if (firstName.toLowerCase().contains(searchTerm.toLowerCase()) ||
+                lastName.toLowerCase().contains(searchTerm.toLowerCase()) ||
+                email.toLowerCase().contains(searchTerm.toLowerCase())) {
+              filteredDocIDs.add(docID);
+            }
+          }
+        }
+      }
+    }
+
+    if (filteredDocIDs.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.orange,
+          content: Text('User not found'),
+          duration: Duration(seconds: 3),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
+  void _clearFilter() {
+    _searchController.clear();
+    setState(() {
+      filteredDocIDs = List.from(docIDs);
+    });
   }
 
   @override
@@ -140,6 +197,7 @@ class _HomePageState extends State<HomePage> {
             },
             icon: Icon(Icons.search),
           ),
+          SizedBox(width: 10),
           GestureDetector(
             onTap: () {
               showDialog(
@@ -186,13 +244,26 @@ class _HomePageState extends State<HomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 16.0),
-              child: Text(
-                'List of Users',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w500,
-                ),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      'List of Users',
+                      style:
+                          TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
+                    ),
+                  ),
+                  ElevatedButton(
+                    onPressed: _clearFilter,
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.grey,
+                      minimumSize: Size(100, 30),
+                    ),
+                    child: Text('Clear filter'),
+                  ),
+                ],
               ),
             ),
             Expanded(
@@ -206,15 +277,18 @@ class _HomePageState extends State<HomePage> {
                   } else if (snapshot.hasError) {
                     return Text('Error: ${snapshot.error}');
                   } else {
+                    List<String> displayList = _searchController.text.isEmpty
+                        ? docIDs
+                        : filteredDocIDs;
                     return ListView.builder(
-                      itemCount: docIDs.length,
+                      itemCount: displayList.length,
                       itemBuilder: (context, index) {
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ListTile(
                             title: GetUserData(
                               key: Key(docIDs[index]),
-                              documentId: docIDs[index],
+                              documentId: displayList[index],
                             ),
                             tileColor: Colors.grey[200],
                             trailing: Row(
