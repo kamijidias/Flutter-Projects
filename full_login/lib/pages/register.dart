@@ -85,6 +85,17 @@ class _RegisterPageState extends State<RegisterPage> {
         _emailController.text.trim(),
       );
 
+      if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              backgroundColor: const Color.fromARGB(255, 32, 155, 95),
+              content: Text('User registered'),
+              duration: Duration(seconds: 3),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+        }
+
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(
           builder: (context) => LoginPage(),

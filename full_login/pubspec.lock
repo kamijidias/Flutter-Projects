@@ -244,10 +244,10 @@ packages:
     dependency: "direct main"
     description:
       name: mailer
-      sha256: b9d3a71841e785f10429b3215720694c7bae7e45ed6ad364c129b327b54e5334
+      sha256: "57f6dd1496699999a7bfd0aa6be0645384f477f4823e16d4321c40a434346382"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.0"
+    version: "6.0.1"
   mask_text_input_formatter:
     dependency: "direct main"
     description:
@@ -344,14 +344,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.7"
-  pedantic:
-    dependency: transitive
-    description:
-      name: pedantic
-      sha256: "67fc27ed9639506c856c840ccce7594d0bdcd91bc8d53d6e52359449a1d50602"
-      url: "https://pub.dev"
-    source: hosted
-    version: "1.11.1"
   platform:
     dependency: transitive
     description:
